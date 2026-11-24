@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Sistema web de inventario con API REST y persistencia en Excel",
   "main": "servidor.js",
+  "packageManager": "pnpm@12.23.0",
   "scripts": {
     "start": "node servidor.js",
     "iniciar": "node servidor.js",
