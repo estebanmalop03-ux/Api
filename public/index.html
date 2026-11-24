@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario Técnico · Excel Web</title>
+  <link rel="stylesheet" href="/estilos.css">
+</head>
+<body>
+  <div class="patron-decorativo" aria-hidden="true"></div>
+
+  <header class="encabezado-principal">
+    <div class="marca-sistema">
+      <div class="emblema-caja" aria-hidden="true">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="4" y="8" width="32" height="24" rx="4" stroke="currentColor" stroke-width="2.4"/>
+          <path d="M4 16H36" stroke="currentColor" stroke-width="2.2"/>
+          <path d="M15 8V32" stroke="currentColor" stroke-width="2.2"/>
+          <rect x="19" y="20" width="12" height="3" rx="1.5" fill="currentColor"/>
+          <rect x="19" y="25" width="8" height="3" rx="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Control de Inventario Técnico</h1>
+        <p class="subtitulo-marca">Sincronizado con libro Excel (.xlsx) y listo para Excel Web</p>
+      </div>
+    </div>
+
+    <div class="acciones-encabezado">
+      <span id="estado-excel" class="insignia-estado">Libro Excel activo</span>
+      <a id="enlace-excel-web" class="boton boton-secundario oculto" target="_blank" rel="noopener noreferrer">
+        Abrir Excel Web
+      </a>
+      <button id="btn-config-excel" class="boton boton-sutil" type="button">
+        Vincular Excel Web
+      </button>
+      <button id="btn-importar" class="boton boton-sutil" type="button">
+        Importar .xlsx
+      </button>
+      <a href="/api/excel/exportar" class="boton boton-secundario">
+        Exportar .xlsx
+      </a>
+      <button id="btn-nuevo" class="boton boton-principal" type="button">
+        + Agregar equipo
+      </button>
+    </div>
+  </header>
+
+  <main class="contenedor-principal">
+    <section class="panel-resumen" aria-label="Resumen de inventario">
+      <article class="tarjeta tarjeta-resumen" data-filtro-rapido="Todas">
+        <div class="icono-tarjeta" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M3 7L12 3L21 7V17L12 21L3 17V7Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M3 7L12 11L21 7M12 11V21" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <div>
+          <span class="etiqueta-resumen">Total de registros</span>
+          <strong id="kpi-registros" class="valor-resumen">0</strong>
+        </div>
+      </article>
+
+      <article class="tarjeta tarjeta-resumen" data-filtro-rapido="Todas">
+        <div class="icono-tarjeta" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+            <rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+            <rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M16.5 13V20M13 16.5H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <span class="etiqueta-resumen">Unidades totales</span>
+          <strong id="kpi-unidades" class="valor-resumen">0</strong>
+        </div>
+      </article>
+
+      <article class="tarjeta tarjeta-resumen" data-filtro-rapido="Laptops">
+        <div class="icono-tarjeta" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="4" y="5" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M2 19H22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <span class="etiqueta-resumen">Laptops y PC</span>
+          <strong id="kpi-computo" class="valor-resumen">0</strong>
+        </div>
+      </article>
+
+      <article class="tarjeta tarjeta-resumen" data-filtro-rapido="Cables">
+        <div class="icono-tarjeta" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7 7V4M17 7V4M5 7H19V11C19 13.8 16.8 16 14 16H10C7.2 16 5 13.8 5 11V7Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 16V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <span class="etiqueta-resumen">Cables y otros</span>
+          <strong id="kpi-accesorios" class="valor-resumen">0</strong>
+        </div>
+      </article>
+    </section>
+
+    <section class="tarjeta panel-controles">
+      <div class="barra-filtros">
+        <div class="buscador-envoltura">
+          <input
+            id="entrada-busqueda"
+            class="campo-entrada"
+            type="search"
+            placeholder="Buscar por marca, modelo, serie, procesador o ubicación..."
+            aria-label="Buscar en el inventario"
+          >
+        </div>
+
+        <select id="filtro-estado" class="campo-entrada selector-corto" aria-label="Filtrar por estado">
+          <option value="Todos">Todos los estados</option>
+        </select>
+
+        <button id="btn-edicion-celda" class="boton boton-sutil" type="button" aria-pressed="false">
+          Edición rápida Excel: Apagada
+        </button>
+
+        <button id="btn-personalizar" class="boton boton-secundario" type="button" aria-expanded="false">
+          Personalizar tabla
+        </button>
+      </div>
+
+      <div id="pestanas-categoria" class="pestanas-categoria" role="tablist" aria-label="Filtrar por categoría"></div>
+
+      <div id="panel-personalizacion" class="panel-personalizacion oculto">
+        <div class="cabecera-personalizacion">
+          <div>
+            <h2>Personalizar vista de tabla</h2>
+            <p>Activa, oculta o reordena las columnas y elige la densidad más cómoda para trabajar.</p>
+          </div>
+          <div class="presets-personalizacion">
+            <button class="boton boton-sutil" type="button" data-preset="general">General</button>
+            <button class="boton boton-sutil" type="button" data-preset="computo">Laptops y PC</button>
+            <button class="boton boton-sutil" type="button" data-preset="cables">Cables y stock</button>
+            <button class="boton boton-sutil" type="button" data-preset="todas">Todas</button>
+            <button id="btn-restablecer-tabla" class="boton boton-sutil" type="button">Restablecer</button>
+          </div>
+        </div>
+
+        <div class="opciones-densidad">
+          <span>Densidad de filas:</span>
+          <label><input type="radio" name="densidad" value="compacta"> Compacta</label>
+          <label><input type="radio" name="densidad" value="normal" checked> Normal</label>
+          <label><input type="radio" name="densidad" value="amplia"> Amplia</label>
+        </div>
+
+        <div id="lista-columnas-config" class="lista-columnas-config"></div>
+      </div>
+    </section>
+
+    <section class="tarjeta panel-tabla">
+      <div class="barra-estado-tabla">
+        <span id="contador-resultados">Mostrando 0 registros</span>
+        <span id="ayuda-excel" class="texto-tenue">
+          Cada cambio se guarda directamente en tu archivo Excel (.xlsx).
+        </span>
+      </div>
+
+      <div class="desplazamiento-tabla">
+        <table id="tabla-inventario" class="tabla-hoja densidad-normal">
+          <thead id="encabezado-tabla"></thead>
+          <tbody id="cuerpo-tabla"></tbody>
+        </table>
+      </div>
+
+      <div id="estado-vacio" class="estado-vacio oculto">
+        <p>No hay registros que coincidan con los filtros actuales.</p>
+        <button id="btn-vacio-agregar" class="boton boton-principal" type="button">
+          + Agregar primer equipo
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="modal-equipo" class="modal-dialogo">
+    <form id="formulario-equipo" class="contenido-modal" novalidate>
+      <div class="cabecera-modal">
+        <h2 id="titulo-modal">Agregar equipo al inventario</h2>
+        <button id="btn-cerrar-modal" class="boton-icono" type="button" aria-label="Cerrar">×</button>
+      </div>
+
+      <input type="hidden" id="campo-id">
+
+      <div class="rejilla-formulario">
+        <div class="campo">
+          <label for="campo-categoria">Categoría *</label>
+          <select id="campo-categoria" class="campo-entrada" required></select>
+        </div>
+
+        <div id="envoltura-otra-categoria" class="campo oculto">
+          <label for="campo-otra-categoria">Nombre de categoría *</label>
+          <input id="campo-otra-categoria" class="campo-entrada" type="text" placeholder="Ej. Impresoras, Cámaras">
+        </div>
+
+        <div class="campo">
+          <label for="campo-marca">Marca *</label>
+          <input id="campo-marca" class="campo-entrada" type="text" placeholder="Ej. Lenovo, Dell, Ugreen" required>
+        </div>
+
+        <div class="campo">
+          <label for="campo-modelo">Modelo *</label>
+          <input id="campo-modelo" class="campo-entrada" type="text" placeholder="Ej. ThinkPad T14, HDMI 2.1" required>
+        </div>
+
+        <div class="campo">
+          <label for="campo-serie">Número de serie *</label>
+          <input id="campo-serie" class="campo-entrada" type="text" placeholder="Ej. PF4X91L0" required>
+        </div>
+
+        <div class="campo">
+          <label for="campo-cantidad">Cantidad</label>
+          <input id="campo-cantidad" class="campo-entrada" type="number" min="0" step="1" value="1">
+        </div>
+
+        <div class="campo">
+          <label for="campo-estado">Estado</label>
+          <select id="campo-estado" class="campo-entrada"></select>
+        </div>
+
+        <div class="campo campo-ancho">
+          <label for="campo-ubicacion">Ubicación</label>
+          <input id="campo-ubicacion" class="campo-entrada" type="text" placeholder="Ej. Almacén Central, Estante B2">
+        </div>
+      </div>
+
+      <fieldset id="bloque-hardware" class="bloque-hardware oculto">
+        <legend>Especificaciones técnicas requeridas para Laptops y PC</legend>
+        <div class="rejilla-formulario">
+          <div class="campo">
+            <label for="campo-procesador">Procesador *</label>
+            <input id="campo-procesador" class="campo-entrada" type="text" placeholder="Ej. Intel Core i7-1355U">
+          </div>
+
+          <div class="campo">
+            <label for="campo-ram">RAM *</label>
+            <input id="campo-ram" class="campo-entrada" type="text" placeholder="Ej. 16 GB DDR5">
+          </div>
+
+          <div class="campo">
+            <label for="campo-tipo-almacenamiento">Tipo de almacenamiento *</label>
+            <input
+              id="campo-tipo-almacenamiento"
+              class="campo-entrada"
+              type="text"
+              list="lista-tipos-disco"
+              placeholder="Ej. SSD NVMe"
+            >
+            <datalist id="lista-tipos-disco">
+              <option value="SSD NVMe">
+              <option value="SSD SATA">
+              <option value="HDD">
+              <option value="eMMC">
+              <option value="Híbrido SSD + HDD">
+            </datalist>
+          </div>
+
+          <div class="campo">
+            <label for="campo-capacidad-almacenamiento">Capacidad de almacenamiento *</label>
+            <input
+              id="campo-capacidad-almacenamiento"
+              class="campo-entrada"
+              type="text"
+              list="lista-capacidades"
+              placeholder="Ej. 512 GB, 1 TB"
+            >
+            <datalist id="lista-capacidades">
+              <option value="128 GB">
+              <option value="256 GB">
+              <option value="512 GB">
+              <option value="1 TB">
+              <option value="2 TB">
+            </datalist>
+          </div>
+
+          <div class="campo campo-ancho">
+            <label for="campo-tarjeta-grafica">Tarjeta gráfica *</label>
+            <input id="campo-tarjeta-grafica" class="campo-entrada" type="text" placeholder="Ej. Intel Iris Xe, NVIDIA RTX 4060">
+          </div>
+        </div>
+      </fieldset>
+
+      <div id="alerta-formulario" class="alerta-formulario oculto" role="alert"></div>
+
+      <div class="pie-modal">
+        <button id="btn-cancelar-modal" class="boton boton-sutil" type="button">Cancelar</button>
+        <button id="btn-guardar-equipo" class="boton boton-principal" type="submit">Guardar en Excel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-excel-web" class="modal-dialogo">
+    <form id="formulario-excel-web" class="contenido-modal">
+      <div class="cabecera-modal">
+        <h2>Conexión con Excel y Excel Web</h2>
+        <button id="btn-cerrar-excel" class="boton-icono" type="button" aria-label="Cerrar">×</button>
+      </div>
+
+      <p class="texto-tenue">
+        Para trabajar de la mano con Excel Web, puedes apuntar el archivo .xlsx dentro de tu carpeta de OneDrive
+        y guardar el enlace directo de tu hoja en línea.
+      </p>
+
+      <div class="campo">
+        <label for="config-ruta-excel">Ruta local del archivo Excel (.xlsx)</label>
+        <input id="config-ruta-excel" class="campo-entrada" type="text" required>
+      </div>
+
+      <div class="campo">
+        <label for="config-enlace-web">Enlace de Excel Web (opcional)</label>
+        <input id="config-enlace-web" class="campo-entrada" type="url" placeholder="https://onedrive.live.com/...">
+      </div>
+
+      <div class="pie-modal">
+        <button id="btn-cancelar-excel" class="boton boton-sutil" type="button">Cerrar</button>
+        <button class="boton boton-principal" type="submit">Guardar configuración</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-importar" class="modal-dialogo">
+    <form id="formulario-importar" class="contenido-modal">
+      <div class="cabecera-modal">
+        <h2>Importar libro desde Excel Web (.xlsx)</h2>
+        <button id="btn-cerrar-importar" class="boton-icono" type="button" aria-label="Cerrar">×</button>
+      </div>
+
+      <div class="campo">
+        <label for="archivo-excel">Archivo .xlsx</label>
+        <input id="archivo-excel" class="campo-entrada" type="file" accept=".xlsx" required>
+      </div>
+
+      <div class="campo">
+        <label for="modo-importacion">Modo de importación</label>
+        <select id="modo-importacion" class="campo-entrada">
+          <option value="agregar">Combinar y actualizar por número de serie</option>
+          <option value="reemplazar">Reemplazar inventario completo</option>
+        </select>
+      </div>
+
+      <div class="pie-modal">
+        <button id="btn-cancelar-importar" class="boton boton-sutil" type="button">Cancelar</button>
+        <button class="boton boton-principal" type="submit">Importar datos</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="notificacion-toast" class="toast oculto" role="status" aria-live="polite"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "inventario-excel-api",
+  "version": "1.0.0",
+  "description": "Sistema web de inventario con API REST y persistencia en Excel",
+  "main": "servidor.js",
+  "scripts": {
+    "start": "node servidor.js",
+    "iniciar": "node servidor.js",
+    "desarrollo": "node --watch servidor.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
+  }
+}
